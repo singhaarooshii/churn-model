@@ -45,6 +45,11 @@ div[data-testid="stMetric"]{
     padding:10px;
     box-shadow:0px 2px 8px rgba(0,0,0,0.2);
 }
+div[data-baseweb="input"] input {
+    color: black !important;
+    background: white !important;
+    font-weight: bold !important;
+}
 
 </style>
 """, unsafe_allow_html=True)
