@@ -1,187 +1,155 @@
-{
- "cells": [
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "54b64edc-3685-45a8-b2f0-0f0ba37a1e89",
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "import streamlit as st\n",
-    "import pickle\n",
-    "import pandas as pd\n",
-    "\n",
-    "# ---------------- Page Configuration ----------------\n",
-    "st.set_page_config(\n",
-    "    page_title=\"Customer Churn Prediction\",\n",
-    "    page_icon=\"🏦\",\n",
-    "    layout=\"wide\"\n",
-    ")\n",
-    "\n",
-    "# ---------------- Load Model ----------------\n",
-    "model = pickle.load(open(\"churn_model.pkl\", \"rb\"))\n",
-    "\n",
-    "# ---------------- Custom CSS ----------------\n",
-    "st.markdown(\"\"\"\n",
-    "<style>\n",
-    "\n",
-    ".main{\n",
-    "    background-color:#f5f7fa;\n",
-    "}\n",
-    "\n",
-    "h1{\n",
-    "    color:#004aad;\n",
-    "    text-align:center;\n",
-    "}\n",
-    "\n",
-    ".stButton>button{\n",
-    "    background:#004aad;\n",
-    "    color:white;\n",
-    "    border-radius:10px;\n",
-    "    width:100%;\n",
-    "    height:3em;\n",
-    "    font-size:18px;\n",
-    "    font-weight:bold;\n",
-    "}\n",
-    "\n",
-    ".stButton>button:hover{\n",
-    "    background:#0066ff;\n",
-    "}\n",
-    "\n",
-    "div[data-testid=\"stMetric\"]{\n",
-    "    background:#ffffff;\n",
-    "    border-radius:10px;\n",
-    "    padding:10px;\n",
-    "    box-shadow:0px 2px 8px rgba(0,0,0,0.2);\n",
-    "}\n",
-    "\n",
-    "</style>\n",
-    "\"\"\", unsafe_allow_html=True)\n",
-    "\n",
-    "# ---------------- Title ----------------\n",
-    "st.title(\"🏦 Customer Churn Prediction\")\n",
-    "st.markdown(\n",
-    "    \"<h4 style='text-align:center;color:grey;'>Predict whether a customer will stay or leave the bank.</h4>\",\n",
-    "    unsafe_allow_html=True\n",
-    ")\n",
-    "\n",
-    "st.divider()\n",
-    "\n",
-    "# ---------------- Sidebar ----------------\n",
-    "st.sidebar.header(\"📋 Customer Information\")\n",
-    "\n",
-    "credit_score = st.sidebar.number_input(\"Credit Score\",300,900,650)\n",
-    "\n",
-    "geography = st.sidebar.selectbox(\n",
-    "    \"Geography\",\n",
-    "    [\"France\",\"Germany\",\"Spain\"]\n",
-    ")\n",
-    "\n",
-    "gender = st.sidebar.selectbox(\n",
-    "    \"Gender\",\n",
-    "    [\"Female\",\"Male\"]\n",
-    ")\n",
-    "\n",
-    "age = st.sidebar.number_input(\n",
-    "    \"Age\",\n",
-    "    18,100,35\n",
-    ")\n",
-    "\n",
-    "tenure = st.sidebar.number_input(\n",
-    "    \"Tenure\",\n",
-    "    0,10,5\n",
-    ")\n",
-    "\n",
-    "balance = st.sidebar.number_input(\n",
-    "    \"Balance\",\n",
-    "    value=50000.0\n",
-    ")\n",
-    "\n",
-    "num_products = st.sidebar.number_input(\n",
-    "    \"Number of Products\",\n",
-    "    1,4,1\n",
-    ")\n",
-    "\n",
-    "has_card = st.sidebar.selectbox(\n",
-    "    \"Has Credit Card\",\n",
-    "    [0,1]\n",
-    ")\n",
-    "\n",
-    "active_member = st.sidebar.selectbox(\n",
-    "    \"Is Active Member\",\n",
-    "    [0,1]\n",
-    ")\n",
-    "\n",
-    "salary = st.sidebar.number_input(\n",
-    "    \"Estimated Salary\",\n",
-    "    value=50000.0\n",
-    ")\n",
-    "\n",
-    "# ---------------- Encoding ----------------\n",
-    "gender = 1 if gender==\"Male\" else 0\n",
-    "\n",
-    "geo_france = 1 if geography==\"France\" else 0\n",
-    "geo_germany = 1 if geography==\"Germany\" else 0\n",
-    "geo_spain = 1 if geography==\"Spain\" else 0\n",
-    "\n",
-    "# ---------------- Metrics ----------------\n",
-    "col1,col2,col3 = st.columns(3)\n",
-    "\n",
-    "col1.metric(\"💳 Credit Score\",credit_score)\n",
-    "col2.metric(\"👤 Age\",age)\n",
-    "col3.metric(\"💰 Balance\",balance)\n",
-    "\n",
-    "st.progress(100)\n",
-    "\n",
-    "# ---------------- Prediction ----------------\n",
-    "if st.button(\"🔍 Predict Customer Churn\"):\n",
-    "\n",
-    "    data = pd.DataFrame({\n",
-    "        \"CreditScore\":[credit_score],\n",
-    "        \"Gender\":[gender],\n",
-    "        \"Age\":[age],\n",
-    "        \"Tenure\":[tenure],\n",
-    "        \"Balance\":[balance],\n",
-    "        \"NumOfProducts\":[num_products],\n",
-    "        \"HasCrCard\":[has_card],\n",
-    "        \"IsActiveMember\":[active_member],\n",
-    "        \"EstimatedSalary\":[salary],\n",
-    "        \"Geography_France\":[geo_france],\n",
-    "        \"Geography_Germany\":[geo_germany],\n",
-    "        \"Geography_Spain\":[geo_spain]\n",
-    "    })\n",
-    "\n",
-    "    prediction = model.predict(data)\n",
-    "\n",
-    "    st.divider()\n",
-    "\n",
-    "    if prediction[0]==1:\n",
-    "        st.error(\"⚠️ Customer is likely to leave the bank.\")\n",
-    "    else:\n",
-    "        st.success(\"✅ Customer is likely to stay with the bank.\")\n",
-    "\n"
-   ]
-  }
- ],
- "metadata": {
-  "kernelspec": {
-   "display_name": "Python [conda env:base] *",
-   "language": "python",
-   "name": "conda-base-py"
-  },
-  "language_info": {
-   "codemirror_mode": {
-    "name": "ipython",
-    "version": 3
-   },
-   "file_extension": ".py",
-   "mimetype": "text/x-python",
-   "name": "python",
-   "nbconvert_exporter": "python",
-   "pygments_lexer": "ipython3",
-   "version": "3.13.9"
-  }
- },
- "nbformat": 4,
- "nbformat_minor": 5
+import streamlit as st
+import pickle
+import pandas as pd
+
+# ---------------- Page Configuration ----------------
+st.set_page_config(
+    page_title="Customer Churn Prediction",
+    page_icon="🏦",
+    layout="wide"
+)
+
+# ---------------- Load Model ----------------
+model = pickle.load(open("churn_model.pkl", "rb"))
+
+# ---------------- Custom CSS ----------------
+st.markdown("""
+<style>
+
+.main{
+    background-color:#f5f7fa;
 }
+
+h1{
+    color:#004aad;
+    text-align:center;
+}
+
+.stButton>button{
+    background:#004aad;
+    color:white;
+    border-radius:10px;
+    width:100%;
+    height:3em;
+    font-size:18px;
+    font-weight:bold;
+}
+
+.stButton>button:hover{
+    background:#0066ff;
+}
+
+div[data-testid="stMetric"]{
+    background:#ffffff;
+    border-radius:10px;
+    padding:10px;
+    box-shadow:0px 2px 8px rgba(0,0,0,0.2);
+}
+
+</style>
+""", unsafe_allow_html=True)
+
+# ---------------- Title ----------------
+st.title("🏦 Customer Churn Prediction")
+st.markdown(
+    "<h4 style='text-align:center;color:grey;'>Predict whether a customer will stay or leave the bank.</h4>",
+    unsafe_allow_html=True
+)
+
+st.divider()
+
+# ---------------- Sidebar ----------------
+st.sidebar.header("📋 Customer Information")
+
+credit_score = st.sidebar.number_input("Credit Score",300,900,650)
+
+geography = st.sidebar.selectbox(
+    "Geography",
+    ["France","Germany","Spain"]
+)
+
+gender = st.sidebar.selectbox(
+    "Gender",
+    ["Female","Male"]
+)
+
+age = st.sidebar.number_input(
+    "Age",
+    18,100,35
+)
+
+tenure = st.sidebar.number_input(
+    "Tenure",
+    0,10,5
+)
+
+balance = st.sidebar.number_input(
+    "Balance",
+    value=50000.0
+)
+
+num_products = st.sidebar.number_input(
+    "Number of Products",
+    1,4,1
+)
+
+has_card = st.sidebar.selectbox(
+    "Has Credit Card",
+    [0,1]
+)
+
+active_member = st.sidebar.selectbox(
+    "Is Active Member",
+    [0,1]
+)
+
+salary = st.sidebar.number_input(
+    "Estimated Salary",
+    value=50000.0
+)
+
+# ---------------- Encoding ----------------
+gender = 1 if gender=="Male" else 0
+
+geo_france = 1 if geography=="France" else 0
+geo_germany = 1 if geography=="Germany" else 0
+geo_spain = 1 if geography=="Spain" else 0
+
+# ---------------- Metrics ----------------
+col1,col2,col3 = st.columns(3)
+
+col1.metric("💳 Credit Score",credit_score)
+col2.metric("👤 Age",age)
+col3.metric("💰 Balance",balance)
+
+st.progress(100)
+
+# ---------------- Prediction ----------------
+if st.button("🔍 Predict Customer Churn"):
+
+    data = pd.DataFrame({
+        "CreditScore":[credit_score],
+        "Gender":[gender],
+        "Age":[age],
+        "Tenure":[tenure],
+        "Balance":[balance],
+        "NumOfProducts":[num_products],
+        "HasCrCard":[has_card],
+        "IsActiveMember":[active_member],
+        "EstimatedSalary":[salary],
+        "Geography_France":[geo_france],
+        "Geography_Germany":[geo_germany],
+        "Geography_Spain":[geo_spain]
+    })
+
+    prediction = model.predict(data)
+
+    st.divider()
+
+    if prediction[0]==1:
+        st.error("⚠️ Customer is likely to leave the bank.")
+    else:
+        st.success("✅ Customer is likely to stay with the bank.")
+
+
+   
