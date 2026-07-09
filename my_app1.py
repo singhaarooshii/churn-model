@@ -45,6 +45,29 @@ div[data-testid="stMetric"]{
     padding:10px;
     box-shadow:0px 2px 8px rgba(0,0,0,0.2);
 }
+/* Number Input */
+.stNumberInput input {
+    color: #000000 !important;
+    background-color: #ffffff !important;
+    font-weight: bold !important;
+}
+
+/* Text Input */
+.stTextInput input {
+    color: #000000 !important;
+    background-color: #ffffff !important;
+}
+
+/* Selectbox */
+.stSelectbox div[data-baseweb="select"] > div {
+    color: #000000 !important;
+    background-color: #ffffff !important;
+}
+
+/* Labels */
+label {
+    color: white !important;
+}
 div[data-baseweb="input"] input {
     color: black !important;
     background: white !important;
